@@ -9,9 +9,16 @@ module aes_key_scheduling(
     genvar i, j;
 
     // Internal signals
-    logic [31:0] key_words[4]; // Input key split into words
+    logic [31:0] key_words[4];      // Input key split into words
     logic [31:0] key_words_next[4]; // Output key words
-    logic [31:0] w3_transformed; // Last word after transformation
+    logic [31:0] w3_rotated;        // After rotation
+    logic [31:0] w3_substituted;    // After S-box
+    logic [31:0] w3_transformed;    // Final transformed word
+    
+    // Rcon calculation signals
+    logic        rcon_overflow;
+    logic [7:0]  rcon_next;
+    logic [7:0]  rcon_final;
 
     // Extract words from input key (column-major order)
     generate
@@ -21,11 +28,12 @@ module aes_key_scheduling(
     endgenerate
 
     // Transform the LAST word (w3): RotWord -> SubWord -> XOR with Rcon
-    logic [31:0] w3_rotated;
-    logic [31:0] w3_substituted;
-
-    // RotWord: rotate left by 8 bits (one byte position)
-    assign w3_rotated = {key_words[3][23:0], key_words[3][31:24]};
+    
+    // RotWord
+    assign w3_rotated[31:24] = key_words[3][7:0];    // Move LSB to MSB
+    assign w3_rotated[23:16] = key_words[3][31:24];  // Move MSB to second position
+    assign w3_rotated[15:8]  = key_words[3][23:16];  // Move second to third
+    assign w3_rotated[7:0]   = key_words[3][15:8];   // Move third to LSB
 
     // SubWord: apply S-box to each byte in parallel
     generate
@@ -37,10 +45,10 @@ module aes_key_scheduling(
         end
     endgenerate
     
-    // XOR with round constant on MSB (first byte in little-endian)
+    // XOR with round constant on LSB (least significant byte)
     assign w3_transformed = {w3_substituted[31:8], w3_substituted[7:0] ^ key_rcon_in};
     
-    // Key expansion: w[i] = w[i-4] XOR f(w[i-1])
+    // Key expansion
     assign key_words_next[0] = key_words[0] ^ w3_transformed;
     assign key_words_next[1] = key_words[1] ^ key_words_next[0];
     assign key_words_next[2] = key_words[2] ^ key_words_next[1];
@@ -53,20 +61,11 @@ module aes_key_scheduling(
         end
     endgenerate
 
-    // Round constant update using Galois field multiplication
-    always_comb begin
-        case (key_rcon_in)
-            8'h01: key_rcon_out = 8'h02;
-            8'h02: key_rcon_out = 8'h04;
-            8'h04: key_rcon_out = 8'h08;
-            8'h08: key_rcon_out = 8'h10;
-            8'h10: key_rcon_out = 8'h20;
-            8'h20: key_rcon_out = 8'h40;
-            8'h40: key_rcon_out = 8'h80;
-            8'h80: key_rcon_out = 8'h1b;
-            8'h1b: key_rcon_out = 8'h36;
-            8'h36: key_rcon_out = 8'h01;
-            default: key_rcon_out = 8'h01;
-        endcase
-    end
+    // Round constant update
+    assign rcon_overflow = key_rcon_in[7];
+    assign rcon_next = {key_rcon_in[6:0], 1'b0};
+
+    assign rcon_final = ({8{rcon_overflow}} & 8'h1b) | ({8{~rcon_overflow}} & rcon_next);
+    assign key_rcon_out = rcon_final;
+
 endmodule

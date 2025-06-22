@@ -10,8 +10,8 @@ module aes_sbox (
     logic [67:0] t;
     logic [17:0] z;
     
-    // Input assignment
-    assign x = data_in;
+    assign x = {data_in[0], data_in[1], data_in[2], data_in[3], 
+                data_in[4], data_in[5], data_in[6], data_in[7]};
     
     // Linear transformation (forward)
     // These operations convert the input to a specific basis
@@ -133,19 +133,17 @@ module aes_sbox (
     assign t[64] = z[4] ^ t[59];
     assign t[65] = t[61] ^ t[62];
     assign t[66] = z[1] ^ t[63];
+    assign s[0]  = t[59] ^ t[63];
+    assign s[6]  = ~t[56] ^ t[62];
+    assign s[7]  = ~t[48] ^ t[60];
     assign t[67] = t[64] ^ t[65];
-    
-    // Final output bits with proper inversion
-    assign s[0] = t[59] ^ t[63];
-    assign s[1] = (t[64] ^ s[3]);
-    assign s[2] = (t[55] ^ t[67]);
     assign s[3] = t[53] ^ t[66];
     assign s[4] = t[51] ^ t[66];
     assign s[5] = t[47] ^ t[65];
-    assign s[6] = (t[56] ^ t[62]);
-    assign s[7] = (t[48] ^ t[60]);
+    assign s[1] = ~t[64] ^ s[3];
+    assign s[2] = ~t[55] ^ t[67];
     
     // Output assignment
-    assign data_out = s;
+    assign data_out = {s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7]};
     
 endmodule

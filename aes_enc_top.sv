@@ -138,14 +138,10 @@ endgenerate
 // Row 1: left shift by 1 position    [a b c d] -> [b c d a] 
 // Row 2: left shift by 2 positions   [a b c d] -> [c d a b]
 // Row 3: left shift by 3 positions   [a b c d] -> [d a b c]
- // Row 0: no shift
-assign shift_row_row[0] = sub_bytes_row[0];
-// Row 1: left shift by 1
-assign shift_row_row[1] = {sub_bytes_row[1][23:0], sub_bytes_row[1][31:24]};
-// Row 2: left shift by 2 
-assign shift_row_row[2] = {sub_bytes_row[2][15:0], sub_bytes_row[2][31:16]};
-// Row 3: left shift by 3
-assign shift_row_row[3] = {sub_bytes_row[3][7:0],  sub_bytes_row[3][31:8]};
+assign shift_row_row[0] = sub_bytes_row[0]; // Row 0: no shift
+assign shift_row_row[3] = {sub_bytes_row[3][23:16], sub_bytes_row[3][15:8], sub_bytes_row[3][7:0], sub_bytes_row[3][31:24]}; // Row 3: shift left by 1
+assign shift_row_row[2] = {sub_bytes_row[2][15:8], sub_bytes_row[2][7:0], sub_bytes_row[2][31:24], sub_bytes_row[2][23:16]}; // Row 2: shift left by 2
+assign shift_row_row[1] = {sub_bytes_row[1][7:0], sub_bytes_row[1][31:24], sub_bytes_row[1][23:16], sub_bytes_row[1][15:8]}; // Row 1: shift left by 3
 
 // Reorganize shifted rows back into column format for next transformation
 generate
