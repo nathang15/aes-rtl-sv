@@ -28,7 +28,7 @@ module tb_aes_mixw;
     always #(CLK_PERIOD/2) clk = ~clk;
     
     // DUT instantiation
-    aes_mixw uut (
+    aes_mixw dut (
         .w_i(data_i),
         .mixw_o(data_o)
     );
