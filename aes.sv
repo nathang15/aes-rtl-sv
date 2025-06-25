@@ -1,4 +1,4 @@
-`timescale 1ns/1ps
+`timescale 1ns / 1ps
 
 module aes(
     input logic clk, // clock signal
@@ -40,7 +40,7 @@ byte_t key_rcon_next; // next round constant reg for key expansion
 
 // CONTROL SIGNALS for FSM and data flow
 logic fsm_en; // allows state machine to advance
-logic finished_v; // hihg when encryption is done
+logic finished_v; // high when encryption is done
 logic last_iter_v; // high during final round (skip MixColumns)
 logic round_active; // high when FSM is not idle
 logic unused_fsm_sum_msb; // Unused MSB from addition
@@ -57,149 +57,90 @@ byte_t key_rcon_current; // ACTIVE round constant being used in current cycle
 aes_word_t sub_bytes_row[4]; // SubBytes result organized by rows [r3, r2, r1, r0]
 aes_word_t shift_row_row[4]; // ShiftRows result organized by rows [r3, r2, r1, r0]
 
-// CONTROL LOGIC
+// FSM Control Logic
+assign fsm_en = (|fsm_q) | data_valid_in;
+assign finished_v = fsm_q[3] & fsm_q[1] & fsm_q[0];
+assign {unused_fsm_sum_msb, fsm_next} = finished_v ? 5'b00000 : fsm_q + 4'b0001;
+assign last_iter_v = fsm_q[3] & fsm_q[1];
 
-// Check if any round is currently active
-assign round_active = |fsm_q;
-
-// Enable FSM to advance when either processing rounds OR new data arrives
-assign fsm_en = round_active || data_valid_in;
-
-// Check if done all rounds
-assign finished_v = (fsm_q == DONE);
-
-// Check if on the last transformation round
-assign last_iter_v = (fsm_q == FINAL);
-
-// Determine FSM next state
-always_comb begin
-    if (finished_v) begin
-        fsm_next = IDLE; // return to IDL after completion
-    end else if (fsm_en) begin
-        fsm_next = fsm_q + 1'b1; // go to next round
-    end else begin
-        fsm_next = fsm_q; // stay in current state
-    end
-end
-
-// SEQUENTIAL LOGIC
-
-// FSM state register
-always_ff @(posedge clk) begin
-    if (!resetn) begin
-        fsm_q <= IDLE;
-    end else begin
+// FSM State Register
+always_ff @(posedge clk) begin : fsm_dff
+    if (!resetn) 
+        fsm_q <= 4'b0000;
+    else if (fsm_en) 
         fsm_q <= fsm_next;
-    end
-end
+end 
 
-// Data register
-always_ff @(posedge clk) begin
-    data_q <= data_next; // update with result from current round
-end
+// Data Register
+always_ff @(posedge clk) begin : data_dff
+    data_q <= data_next;
+end 
 
-// Key registers
-always_ff @(posedge clk) begin
-    if (fsm_en) begin
-        key_q <= key_next;
-        key_rcon_q <= key_rcon_next;
-    end
-end
-
-// AES TRANSFORMATION
-
-// SubBytes: Substitutes each byte using AES S-box
-generate
-    for (i = 0; i < 16; i++) begin : gen_sbox
-        aes_sbox u_sbox (
-            .data_in(data_q[i*8 +: 8]), // Input is each byte of current data
-            .data_out(sub_bytes[i*8 +: 8])
+// S-box Substitution (SubBytes)
+generate 
+    for (i = 0; i < 16; i++) begin : loop_gen_sb_i				
+        aes_sbox sbox(
+            .data_in(data_q[(i*8)+7:(i*8)]),
+            .data_out(sub_bytes[(i*8)+7:(i*8)])
         );
     end
 endgenerate
- 
-// ShiftRows: Cyclically shift rows left
 
-// Step 1: Reorganize 128-bit block into 4 rows of 32
-// AES state matrix layout: [col3 col2 col1 col0] for each row
-generate
-    for (r = 0; r < 4; r++) begin: gen_rows
-        assign sub_bytes_row[r] = {
-            sub_bytes[3*32 + r*8 +: 8],
-            sub_bytes[2*32 + r*8 +: 8],
-            sub_bytes[1*32 + r*8 +: 8],
-            sub_bytes[0*32 + r*8 +: 8]
-        };
+// ShiftRows
+generate 
+    for (r = 0; r < 4; r++) begin : loop_gen_sr_r
+        assign sub_bytes_row[r] = {sub_bytes[3*32+8*r+7:3*32+8*r],
+                                   sub_bytes[2*32+8*r+7:2*32+8*r],
+                                   sub_bytes[32+8*r+7:32+8*r],
+                                   sub_bytes[8*r+7:8*r]};
+        assign {shift_row[3*32+8*r+7:3*32+8*r],
+                shift_row[2*32+8*r+7:2*32+8*r],
+                shift_row[1*32+8*r+7:1*32+8*r],
+                shift_row[0*32+8*r+7:0*32+8*r]} = shift_row_row[r];
     end
 endgenerate
 
-// Apply ShiftRows transformation:
-// Row 0: no shift                    [a b c d] -> [a b c d]
-// Row 1: left shift by 1 position    [a b c d] -> [b c d a] 
-// Row 2: left shift by 2 positions   [a b c d] -> [c d a b]
-// Row 3: left shift by 3 positions   [a b c d] -> [d a b c]
-assign shift_row_row[0] = sub_bytes_row[0]; // Row 0: no shift
-assign shift_row_row[3] = {sub_bytes_row[3][23:16], sub_bytes_row[3][15:8], sub_bytes_row[3][7:0], sub_bytes_row[3][31:24]}; // Row 3: shift left by 1
-assign shift_row_row[2] = {sub_bytes_row[2][15:8], sub_bytes_row[2][7:0], sub_bytes_row[2][31:24], sub_bytes_row[2][23:16]}; // Row 2: shift left by 2
-assign shift_row_row[1] = {sub_bytes_row[1][7:0], sub_bytes_row[1][31:24], sub_bytes_row[1][23:16], sub_bytes_row[1][15:8]}; // Row 1: shift left by 3
-
-// Reorganize shifted rows back into column format for next transformation
-generate
-    for (r = 0; r < 4; r++) begin : gen_shift_cols
-        assign {
-            shift_row[3*32 + r*8 +: 8],
-            shift_row[2*32 + r*8 +: 8],
-            shift_row[1*32 + r*8 +: 8],
-            shift_row[0*32 + r*8 +: 8]
-        } = shift_row_row[r];
-    end
-endgenerate
+// ShiftRows transformation
+assign shift_row_row[0] = sub_bytes_row[0]; // no shift on row 0
+assign shift_row_row[3] = {sub_bytes_row[3][23:16], sub_bytes_row[3][15:8], sub_bytes_row[3][7:0], sub_bytes_row[3][31:24]}; // row1 0,1,2,3 -> 1,2,3,0
+assign shift_row_row[2] = {sub_bytes_row[2][15:8], sub_bytes_row[2][7:0], sub_bytes_row[2][31:24], sub_bytes_row[2][23:16]}; // row2 0,1,2,3 -> 2,3,0,1
+assign shift_row_row[1] = {sub_bytes_row[1][7:0], sub_bytes_row[1][31:24], sub_bytes_row[1][23:16], sub_bytes_row[1][15:8]}; // row3 0,1,2,3 -> 3,0,1,2
 
 // MixColumns
-generate
-    for (c = 0; c < 4; c++) begin : gen_mixcol
-        aes_mixw u_mixw (
-            .w_i(shift_row[c*32 +: 32]),
-            .mixw_o(mix_columns[c*32 +: 32])
+generate 
+    for (c = 0; c < 4; c++) begin : loop_gen_mc_c
+        aes_mixw mixw ( 
+            .w_i(shift_row[c*32+31:c*32]), 
+            .mixw_o(mix_columns[c*32+31:c*32])
         );
     end
 endgenerate
 
-// KEY SCHEDULE AND ROUND KEY ADDITION
+// AddRoundKey: bitwise XOR
+assign round_key_result = data_valid_in ? data_in : (last_iter_v ? shift_row : mix_columns);
+assign data_next = round_key_result ^ key_current;
 
-// Key schedule inputs
+// Key expansion logic
 assign key_current = data_valid_in ? key_in : key_q;
-assign key_rcon_current = data_valid_in ? 8'h01 : key_rcon_q;
+assign key_rcon_current = data_valid_in ? 8'b0000_0001 : key_rcon_q;
 
-// Key scheduling module
-aes_key_scheduling u_key_scheduling (
+// Key scheduler instance
+aes_key_scheduling ks(
     .key_in(key_current),
     .key_rcon_in(key_rcon_current),
     .key_next_out(key_next),
     .key_rcon_out(key_rcon_next)
 );
 
-// AddRoundKey: XOR with round key
-// Skip MixColumns in the last round
-always_comb begin
-    if (data_valid_in) begin
-        // Round 0
-        // XOR input data with original key since no transformation yet
-        round_key_result = data_in ^ key_current;
-    end else if (last_iter_v) begin
-        // Last round (round 10)
-        // Apply SubBytes + ShiftRows, then XOR with round key
-        round_key_result = shift_row ^ key_current;
-    end else begin
-        // Apply SubBytes + ShiftRows + MixColumns + AddRoundKey
-        round_key_result = mix_columns ^ key_current;
+// Key registers
+always_ff @(posedge clk) begin : key_dff
+    if (fsm_en) begin
+        key_q <= key_next;
+        key_rcon_q <= key_rcon_next;
     end
 end
 
-// Store the result for next clock cycle
-assign data_next = round_key_result;
-
-// OUTPUT ASSIGNMENT
+// Output
 assign res_valid_out = finished_v;
 assign res_enc_out = data_q;
 
