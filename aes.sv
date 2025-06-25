@@ -1,6 +1,6 @@
 `timescale 1ns/1ps
 
-module aes_enc_top(
+module aes(
     input logic clk, // clock signal
     input logic resetn, // active-low reset
     
