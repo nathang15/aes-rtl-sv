@@ -53,6 +53,12 @@ def main():
     print("=====================================\n")
     
     test_vectors = [
+        # Custom test vector
+        {
+            'plaintext': bytes.fromhex('54776F204F6E65204E696E652054776F'),
+            'key': bytes.fromhex('5468617473206D79204B756E67204675'),
+            'description': "Two One Nine Two' with 'Thats my Kung Fu'"
+        },
         # NIST Test Vector 1
         {
             'plaintext': bytes.fromhex('00112233445566778899aabbccddeeff'),
@@ -76,12 +82,6 @@ def main():
             'plaintext': bytes([0xff] * 16),
             'key': bytes([0xff] * 16),
             'description': 'All Ones'
-        },
-        # Custom test vector
-        {
-            'plaintext': bytes.fromhex('54776F204F6E65204E696E652054776F'),
-            'key': bytes.fromhex('5468617473206D79204B756E67204675'),
-            'description': "Two One Nine Two' with 'Thats my Kung Fu'"
         }
     ]
 

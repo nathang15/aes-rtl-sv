@@ -73,8 +73,14 @@ end
 
 // Data Register
 always_ff @(posedge clk) begin : data_dff
+    if (fsm_q == 0 && data_valid_in) begin
+        $display("[AES Round 0] Input (Plaintext)  = %032h", data_in);
+        $display("[AES Round 0] Input (Key)        = %032h", key_in);
+    end else if (fsm_q != 0) begin
+        $display("[AES Round %0d] Round Output     = %032h", fsm_q, data_q);
+    end
     data_q <= data_next;
-end 
+end
 
 // S-box Substitution (SubBytes)
 generate 
@@ -145,3 +151,161 @@ assign res_valid_out = finished_v;
 assign res_enc_out = data_q;
 
 endmodule
+
+// `timescale 1ns / 1ps
+
+// module aes(
+//     input clk,
+//     input resetn,
+    
+//     input          data_valid_in, // input valid
+//     input [127:0]  data_in,   // message to decode
+//     input [127:0]  key_in,    // key
+//     output         res_valid_out,  // result valid
+//     output [127:0] res_enc_out     // result
+// );
+
+// // Internal state registers and wires
+// reg  [127:0] data_q;
+// wire [127:0] data_next;
+
+// reg  [3:0] fsm_q;
+// wire [3:0] fsm_next;
+// wire       fsm_en;
+// wire       finished_v;
+// wire       last_iter_v;
+
+// wire       unused_fsm_sum_msb;
+
+// // AES Transformations
+// wire [127:0] sub_bytes;
+// wire [31:0]  sub_bytes_row[3:0];
+
+// wire [127:0] shift_row;
+// wire [31:0]  shift_row_row[3:0];
+
+// wire [127:0] mix_columns;
+
+// wire [127:0] round_key_next;
+// wire [127:0] round_key;
+
+// // Key scheduling
+// reg  [127:0] key_q;
+// wire [127:0] key_next;
+// wire [127:0] key_current;
+
+// reg  [7:0]   key_rcon_q;
+// wire [7:0]   key_rcon_next;
+// wire [7:0]   key_rcon_current;
+
+// // FSM Logic
+// assign fsm_en = |fsm_q | data_valid_in;
+// assign finished_v = fsm_q[3] & fsm_q[1] & fsm_q[0];
+// assign {unused_fsm_sum_msb, fsm_next} = finished_v ? 5'b00000 : fsm_q + 4'b0001;
+// assign last_iter_v = fsm_q[3] & fsm_q[1];
+
+// // FSM Register
+// always @(posedge clk) begin : fsm_dff
+//     if (!resetn)
+//         fsm_q <= 4'b0000;
+//     else if (fsm_en)
+//         fsm_q <= fsm_next;
+// end
+
+// // Data Register + Debug Display
+// always @(posedge clk) begin : data_dff
+//     if (fsm_q == 0 && data_valid_in) begin
+//         $display("[AES Round 0] Input (Plaintext)  = %032h", data_in);
+//         $display("[AES Round 0] Input (Key)        = %032h", key_in);
+//         $display("[AES Round 0] State after XOR    = %032h", data_next);
+//     end
+//     else if (fsm_q != 0) begin
+//         $display("[AES Round %0d] Data             = %032h", fsm_q, data_q);
+//     end
+
+//     data_q <= data_next;
+// end
+
+// // S-Box Substitution
+// genvar sb_i;
+// generate
+//     for (sb_i = 0; sb_i < 16; sb_i = sb_i + 1) begin : loop_gen_sb_i
+//         aes_sbox m_sbox(
+//             .data_in(data_q[(sb_i*8)+7:(sb_i*8)]),
+//             .data_out(sub_bytes[(sb_i*8)+7:(sb_i*8)])
+//         );
+//     end
+// endgenerate
+
+// // ShiftRows
+// genvar sr_r;
+// generate
+//     for (sr_r = 0; sr_r < 4; sr_r = sr_r + 1) begin : loop_gen_sr_r
+//         assign sub_bytes_row[sr_r] = {
+//             sub_bytes[3*32+8*sr_r+7:3*32+8*sr_r],
+//             sub_bytes[2*32+8*sr_r+7:2*32+8*sr_r],
+//             sub_bytes[32+8*sr_r+7:32+8*sr_r],
+//             sub_bytes[8*sr_r+7:8*sr_r]
+//         };
+//         assign {
+//             shift_row[3*32+8*sr_r+7:3*32+8*sr_r],
+//             shift_row[2*32+8*sr_r+7:2*32+8*sr_r],
+//             shift_row[1*32+8*sr_r+7:1*32+8*sr_r],
+//             shift_row[0*32+8*sr_r+7:0*32+8*sr_r]
+//         } = shift_row_row[sr_r];
+//     end
+// endgenerate
+
+// assign shift_row_row[0] = sub_bytes_row[0];
+// assign shift_row_row[3] = {
+//     sub_bytes_row[3][23:16], sub_bytes_row[3][15:8],
+//     sub_bytes_row[3][7:0],   sub_bytes_row[3][31:24]
+// };
+// assign shift_row_row[2] = {
+//     sub_bytes_row[2][15:8],  sub_bytes_row[2][7:0],
+//     sub_bytes_row[2][31:24], sub_bytes_row[2][23:16]
+// };
+// assign shift_row_row[1] = {
+//     sub_bytes_row[1][7:0],   sub_bytes_row[1][31:24],
+//     sub_bytes_row[1][23:16], sub_bytes_row[1][15:8]
+// };
+
+// // MixColumns
+// genvar mc_c;
+// generate
+//     for (mc_c = 0; mc_c < 4; mc_c = mc_c + 1) begin : loop_gen_mc_c
+//         aes_mixw m_mixw (
+//             .w_i(shift_row[mc_c*32+31:mc_c*32]),
+//             .mixw_o(mix_columns[mc_c*32+31:mc_c*32])
+//         );
+//     end
+// endgenerate
+
+// // AddRoundKey
+// assign round_key_next = data_valid_in ? data_in : (last_iter_v ? shift_row : mix_columns);
+// assign round_key = round_key_next ^ key_current;
+// assign data_next = round_key;
+
+// // Key Expansion
+// assign key_current      = data_valid_in ? key_in : key_q;
+// assign key_rcon_current = data_valid_in ? 8'h01 : key_rcon_q;
+
+// aes_key_scheduling m_ks(
+//     .key_in(key_current),
+//     .key_rcon_in(key_rcon_current),
+//     .key_next_out(key_next),
+//     .key_rcon_out(key_rcon_next)
+// );
+
+// always @(posedge clk) begin : key_dff
+//     if (fsm_en) begin
+//         key_q      <= key_next;
+//         key_rcon_q <= key_rcon_next;
+//     end
+// end
+
+// // Outputs
+// assign res_valid_out = finished_v;
+// assign res_enc_out   = data_q;
+
+// endmodule

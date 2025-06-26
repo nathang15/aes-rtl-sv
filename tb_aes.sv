@@ -84,13 +84,13 @@ module tb_aes();
             pass_count++;
         end else begin
             $display("[FAIL] Test %0d: Output mismatch", test_count);
-            $display("       Input:    %032h", plaintext);
-            $display("       Key:      %032h", key);
-            $display("       Expected: %032h", expected_ciphertext);
-            $display("       Got:      %032h", res_enc_out);
+            $display("Input:    %032h", plaintext);
+            $display("Key:      %032h", key);
+            $display("Expected: %032h", expected_ciphertext);
+            $display("Got:      %032h", res_enc_out);
             fail_count++;
         end
-        
+        $display("\n===========================================================================");
         @(posedge clk);
     endtask
     
@@ -127,9 +127,9 @@ module tb_aes();
             // Once first 5 tests are done, show them
             if (test_count <= 5) begin
                 $display("Test %0d:", test_count);
-                $display("  Plaintext: %032h", plaintext);
-                $display("  Key:       %032h", key);
-                $display("  Expected:  %032h", expected_ciphertext);
+                $display("Plaintext: %032h", plaintext);
+                $display("Key:       %032h", key);
+                $display("Expected:  %032h", expected_ciphertext);
             end
             
             apply_and_check_test(plaintext, key, expected_ciphertext);
