@@ -103,7 +103,6 @@ module tb_aes();
         $display("AES-128 SystemVerilog Verification Test");
         $display("=========================================\n");
         
-        // Open test vector files (hex format)
         fd_data_hex = $fopen("test_vec/aes_enc_data_i_hex.txt", "r");
         fd_key_hex = $fopen("test_vec/aes_enc_key_i_hex.txt", "r");
         fd_res_hex = $fopen("test_vec/aes_enc_res_o_hex.txt", "r");
@@ -125,6 +124,7 @@ module tb_aes();
             
             test_count++;
             
+            // Once first 5 tests are done, show them
             if (test_count <= 5) begin
                 $display("Test %0d:", test_count);
                 $display("  Plaintext: %032h", plaintext);
