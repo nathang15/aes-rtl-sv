@@ -1,0 +1,87 @@
+# vsim -c -do "run -all; quit" work.tb_aes 
+# Start time: 20:10:24 on Jun 25,2025
+# ** Note: (vsim-8009) Loading existing optimized design _opt
+# //  Questa Intel Starter FPGA Edition-64
+# //  Version 2024.3 win64 Sep 10 2024
+# //
+# // Unpublished work. Copyright 2024 Siemens
+# //
+# // This material contains trade secrets or otherwise confidential information
+# // owned by Siemens Industry Software Inc. or its affiliates (collectively,
+# // "SISW"), or its licensors. Access to and use of this information is strictly
+# // limited as set forth in the Customer's applicable agreements with SISW.
+# //
+# // This material may not be copied, distributed, or otherwise disclosed outside
+# // of the Customer's facilities without the express written permission of SISW,
+# // and may not be used in any way not expressly authorized by SISW.
+# //
+# Loading sv_std.std
+# Loading work.tb_aes(fast)
+# run -all
+# 
+# =========================================
+# AES-128 SystemVerilog Verification Test
+# =========================================
+# 
+# DUT reset complete
+# 
+# Test 1:
+#   Plaintext: 00112233445566778899aabbccddeeff
+#   Key:       000102030405060708090a0b0c0d0e0f
+#   Expected:  69c4e0d86a7b0430d8cdb78070b4c55a
+# [FAIL] Test 1: Output mismatch
+#        Input:    00112233445566778899aabbccddeeff
+#        Key:      000102030405060708090a0b0c0d0e0f
+#        Expected: 69c4e0d86a7b0430d8cdb78070b4c55a
+#        Got:      d0bfe1c79a57a7e74b276e90cca5a729
+# Test 2:
+#   Plaintext: 3243f6a8885a308d313198a2e0370734
+#   Key:       2b7e151628aed2a6abf7158809cf4f3c
+#   Expected:  3925841d02dc09fbdc118597196a0b32
+# [FAIL] Test 2: Output mismatch
+#        Input:    3243f6a8885a308d313198a2e0370734
+#        Key:      2b7e151628aed2a6abf7158809cf4f3c
+#        Expected: 3925841d02dc09fbdc118597196a0b32
+#        Got:      ee25f36e56711f9d73a194d511a8e370
+# Test 3:
+#   Plaintext: 00000000000000000000000000000000
+#   Key:       00000000000000000000000000000000
+#   Expected:  66e94bd4ef8a2c3b884cfa59ca342b2e
+# [FAIL] Test 3: Output mismatch
+#        Input:    00000000000000000000000000000000
+#        Key:      00000000000000000000000000000000
+#        Expected: 66e94bd4ef8a2c3b884cfa59ca342b2e
+#        Got:      2e2b34ca59fa4c883b2c8aefd44be966
+# Test 4:
+#   Plaintext: ffffffffffffffffffffffffffffffff
+#   Key:       ffffffffffffffffffffffffffffffff
+#   Expected:  bcbf217cb280cf30b2517052193ab979
+# [FAIL] Test 4: Output mismatch
+#        Input:    ffffffffffffffffffffffffffffffff
+#        Key:      ffffffffffffffffffffffffffffffff
+#        Expected: bcbf217cb280cf30b2517052193ab979
+#        Got:      79b93a19527051b230cf80b27c21bfbc
+# Test 5:
+#   Plaintext: 54776f204f6e65204e696e652054776f
+#   Key:       5468617473206d79204b756e67204675
+#   Expected:  29c3505f571420f6402299b31a02d73a
+# [FAIL] Test 5: Output mismatch
+#        Input:    54776f204f6e65204e696e652054776f
+#        Key:      5468617473206d79204b756e67204675
+#        Expected: 29c3505f571420f6402299b31a02d73a
+#        Got:      1484415815d4da80200d89474216b6aa
+# 
+# =========================================
+# Test Summary:
+#   Total Tests: 5
+#   Passed:      0
+#   Failed:      5
+#   Success Rate: 0.0%
+# =========================================
+# 
+# *** 5 TESTS FAILED! ***
+# 
+# ** Note: $finish    : tb_aes.sv(161)
+#    Time: 735 ns  Iteration: 1  Instance: /tb_aes
+# End time: 20:10:24 on Jun 25,2025, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
