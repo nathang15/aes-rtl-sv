@@ -1,6 +1,28 @@
-# vsim -c -do "run -all; quit" work.tb_aes 
-# Start time: 22:19:37 on Jun 25,2025
-# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
+# vlib work
+#  vlog -sv *.sv
+# Questa Intel Starter FPGA Edition-64 vlog 2024.3 Compiler 2024.09 Sep 10 2024
+# Start time: 17:46:38 on Jun 26,2025
+# vlog -sv aes.sv aes_key_scheduling.sv aes_mixw.sv aes_sbox.sv tb_aes.sv tb_aes_key_scheduling.sv tb_aes_mixw.sv tb_aes_sbox.sv 
+# -- Compiling module aes
+# -- Compiling module aes_key_scheduling
+# -- Compiling module aes_mixw
+# -- Compiling module aes_sbox
+# -- Compiling module tb_aes
+# -- Compiling module tb_aes_key_scheduling
+# -- Compiling module tb_aes_mixw
+# -- Compiling module tb_aes_sbox
+# 
+# Top level modules:
+# 	tb_aes
+# 	tb_aes_key_scheduling
+# 	tb_aes_mixw
+# 	tb_aes_sbox
+# End time: 17:46:38 on Jun 26,2025, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+#  vsim work.tb_aes
+# vsim work.tb_aes 
+# Start time: 17:46:39 on Jun 26,2025
+# ** Note: (vsim-3812) Design is being optimized...
 # //  Questa Intel Starter FPGA Edition-64
 # //  Version 2024.3 win64 Sep 10 2024
 # //
@@ -17,146 +39,26 @@
 # //
 # Loading sv_std.std
 # Loading work.tb_aes(fast)
-# run -all
-# 
-# =========================================
-# AES-128 SystemVerilog Verification Test
-# =========================================
-# 
-# DUT reset complete
-# 
-# Test 1:
-# Plaintext: 54776f204f6e65204e696e652054776f
-# Key:       5468617473206d79204b756e67204675
-# Expected:  29c3505f571420f6402299b31a02d73a
+#  run -all
 # [AES Round 0] Input (Plaintext)  = 54776f204f6e65204e696e652054776f
 # [AES Round 0] Input (Key)        = 5468617473206d79204b756e67204675
-# [AES Round 1] Round Output     = 001f0e543c4e08596e221b0b4774311a
-# [AES Round 2] Round Output     = 0bff8a92fc8eafea0330c6934ef6f662
-# [AES Round 3] Round Output     = d964182e9f59d3942f3a35a7aad8a1f9
-# [AES Round 4] Round Output     = 4eb0b5ceb7061abf728e23a416c20999
-# [AES Round 5] Round Output     = b14777220c964a2c434270919d0ff5ea
-# [AES Round 6] Round Output     = af0474266e69c6ee7c0089dfa5f54fb9
-# [AES Round 7] Round Output     = b4d4b58874b6e7e5e11bf19e6ab9670d
-# [AES Round 8] Round Output     = 07e5b4a4292418ebac75419df7de6562
-# [AES Round 9] Round Output     = 37a09fb5a1cb129f5f48393fb1c7b59a
-# [AES Round 10] Round Output     = 43feb9aa47a0a405bc640f0369cb1987
-# [AES Round 11] Round Output     = 1484415815d4da80200d89474216b6aa
-# [FAIL] Test 1: Output mismatch
-# Input:    54776f204f6e65204e696e652054776f
-# Key:      5468617473206d79204b756e67204675
-# Expected: 29c3505f571420f6402299b31a02d73a
-# Got:      1484415815d4da80200d89474216b6aa
-# 
-# ===========================================================================
-# Test 2:
-# Plaintext: 00112233445566778899aabbccddeeff
-# Key:       000102030405060708090a0b0c0d0e0f
-# Expected:  69c4e0d86a7b0430d8cdb78070b4c55a
-# [AES Round 0] Input (Plaintext)  = 00112233445566778899aabbccddeeff
-# [AES Round 0] Input (Key)        = 000102030405060708090a0b0c0d0e0f
-# [AES Round 1] Round Output     = 00102030405060708090a0b0c0d0e0f0
-# [AES Round 2] Round Output     = e45d082fce2807a8380adbbc8d01b371
-# [AES Round 3] Round Output     = 08191e6b5449aed8acf78c96ee8676bb
-# [AES Round 4] Round Output     = 37f736f33a1a8a9616dcd18bf7e3730a
-# [AES Round 5] Round Output     = d22b78af405b2e56662783db20dc33ec
-# [AES Round 6] Round Output     = ff4fe1e02a0752a3aade86f8c5f58383
-# [AES Round 7] Round Output     = 8fd32f2ebd77f0e45056deb90d9b6a41
-# [AES Round 8] Round Output     = 054c56689af9324ddd91badca8eaf2eb
-# [AES Round 9] Round Output     = bda1c9b49130bd1382dd133e651b39d5
-# [AES Round 10] Round Output     = 38716fe3bc989f29701c93dd61e82b0b
-# [AES Round 11] Round Output     = d0bfe1c79a57a7e74b276e90cca5a729
-# [FAIL] Test 2: Output mismatch
-# Input:    00112233445566778899aabbccddeeff
-# Key:      000102030405060708090a0b0c0d0e0f
-# Expected: 69c4e0d86a7b0430d8cdb78070b4c55a
-# Got:      d0bfe1c79a57a7e74b276e90cca5a729
-# 
-# ===========================================================================
-# Test 3:
-# Plaintext: 3243f6a8885a308d313198a2e0370734
-# Key:       2b7e151628aed2a6abf7158809cf4f3c
-# Expected:  3925841d02dc09fbdc118597196a0b32
-# [AES Round 0] Input (Plaintext)  = 3243f6a8885a308d313198a2e0370734
-# [AES Round 0] Input (Key)        = 2b7e151628aed2a6abf7158809cf4f3c
-# [AES Round 1] Round Output     = 193de3bea0f4e22b9ac68d2ae9f84808
-# [AES Round 2] Round Output     = 32ad43b9fed6d37952d810b74f513888
-# [AES Round 3] Round Output     = 3b42947c260b50d7e11084e7292c01fa
-# [AES Round 4] Round Output     = 0b455865187ef70c17d68fefa3dda1c7
-# [AES Round 5] Round Output     = c9a6d9feaa60dcfd39b03f13484de110
-# [AES Round 6] Round Output     = 957485338a450569e6ec1de77714578d
-# [AES Round 7] Round Output     = 925a4150c0c21fa991c1451020f7800a
-# [AES Round 8] Round Output     = 371924ef217d309d4900b01c45384b2e
-# [AES Round 9] Round Output     = 16d99c00e0e6a2e84b31f8f09b818e91
-# [AES Round 10] Round Output     = 5b9601e5bdbd1e3049039485c0458f9f
-# [AES Round 11] Round Output     = ee25f36e56711f9d73a194d511a8e370
-# [FAIL] Test 3: Output mismatch
-# Input:    3243f6a8885a308d313198a2e0370734
-# Key:      2b7e151628aed2a6abf7158809cf4f3c
-# Expected: 3925841d02dc09fbdc118597196a0b32
-# Got:      ee25f36e56711f9d73a194d511a8e370
-# 
-# ===========================================================================
-# Test 4:
-# Plaintext: 00000000000000000000000000000000
-# Key:       00000000000000000000000000000000
-# Expected:  66e94bd4ef8a2c3b884cfa59ca342b2e
-# [AES Round 0] Input (Plaintext)  = 00000000000000000000000000000000
-# [AES Round 0] Input (Key)        = 00000000000000000000000000000000
-# [AES Round 1] Round Output     = 00000000000000000000000000000000
-# [AES Round 2] Round Output     = 00000001000000010000000100000001
-# [AES Round 3] Round Output     = e88787a48be4e4c6e88787a48be4e4c6
-# [AES Round 4] Round Output     = 46e59008a7904e4a2586f36ac4f32d28
-# [AES Round 5] Round Output     = 5f6a9a75c0afa05049b55a37fecdd2ab
-# [AES Round 6] Round Output     = 23de79793dbb057e3396b8556c4f6fd4
-# [AES Round 7] Round Output     = 10d7c54996012fe24528780797caf204
-# [AES Round 8] Round Output     = 5081e594810f926c4f2d251dc5e4aab7
-# [AES Round 9] Round Output     = 95cb032e57c6c0aadb6321133c8ce723
-# [AES Round 10] Round Output     = cbec2929477c340e3566a551950efe7f
-# [AES Round 11] Round Output     = 2e2b34ca59fa4c883b2c8aefd44be966
-# [FAIL] Test 4: Output mismatch
-# Input:    00000000000000000000000000000000
-# Key:      00000000000000000000000000000000
-# Expected: 66e94bd4ef8a2c3b884cfa59ca342b2e
-# Got:      2e2b34ca59fa4c883b2c8aefd44be966
-# 
-# ===========================================================================
-# Test 5:
-# Plaintext: ffffffffffffffffffffffffffffffff
-# Key:       ffffffffffffffffffffffffffffffff
-# Expected:  bcbf217cb280cf30b2517052193ab979
-# [AES Round 0] Input (Plaintext)  = ffffffffffffffffffffffffffffffff
-# [AES Round 0] Input (Key)        = ffffffffffffffffffffffffffffffff
-# [AES Round 1] Round Output     = 00000000000000000000000000000000
-# [AES Round 2] Round Output     = 757575748a8a8a8b757575748a8a8a8b
-# [AES Round 3] Round Output     = 4208eb1b63b15277bdf714e49c4ead88
-# [AES Round 4] Round Output     = 94707dd6a807d06554ea518f4ae34a6b
-# [AES Round 5] Round Output     = 79088ac4a11c800245e76aa3efe4da90
-# [AES Round 6] Round Output     = 6576e1740251036fce0962008773d709
-# [AES Round 7] Round Output     = c1ced78af242a99ef3f87ca251b8bb0a
-# [AES Round 8] Round Output     = 7047862db8d2fe8819056b6fe8874643
-# [AES Round 9] Round Output     = c7d3182aba2b79c805042d1f209442c7
-# [AES Round 10] Round Output     = ba2541ad849b04080dbdd2b9cc895358
-# [AES Round 11] Round Output     = 79b93a19527051b230cf80b27c21bfbc
-# [FAIL] Test 5: Output mismatch
-# Input:    ffffffffffffffffffffffffffffffff
-# Key:      ffffffffffffffffffffffffffffffff
-# Expected: bcbf217cb280cf30b2517052193ab979
-# Got:      79b93a19527051b230cf80b27c21bfbc
-# 
-# ===========================================================================
-# 
-# =========================================
-# Test Summary:
-#   Total Tests: 5
-#   Passed:      0
-#   Failed:      5
-#   Success Rate: 0.0%
-# =========================================
-# 
-# *** 5 TESTS FAILED! ***
-# 
-# ** Note: $finish    : tb_aes.sv(161)
-#    Time: 735 ns  Iteration: 1  Instance: /tb_aes
-# End time: 22:19:39 on Jun 25,2025, Elapsed time: 0:00:02
-# Errors: 0, Warnings: 0
+# [AES Round 0] State after XOR    = 001f0e543c4e08596e221b0b4774311a
+# [AES Round 1] Data             = 001f0e543c4e08596e221b0b4774311a
+# [AES Round 2] Data             = 0bff8a92fc8eafea0330c6934ef6f662
+# [AES Round 3] Data             = d964182e9f59d3942f3a35a7aad8a1f9
+# [AES Round 4] Data             = 4eb0b5ceb7061abf728e23a416c20999
+# [AES Round 5] Data             = b14777220c964a2c434270919d0ff5ea
+# [AES Round 6] Data             = af0474266e69c6ee7c0089dfa5f54fb9
+# [AES Round 7] Data             = b4d4b58874b6e7e5e11bf19e6ab9670d
+# [AES Round 8] Data             = 07e5b4a4292418ebac75419df7de6562
+# [AES Round 9] Data             = 37a09fb5a1cb129f5f48393fb1c7b59a
+# [AES Round 10] Data             = 43feb9aa47a0a405bc640f0369cb1987
+# [AES Round 11] Data             = 1484415815d4da80200d89474216b6aa
+# ** Error: AES encoded output does not match test vector
+#    Time: 135 ns  Scope: tb_aes File: tb_aes.sv Line: 143
+# ** Error: Expected: 29c3505f571420f6402299b31a02d73a, Got: 1484415815d4da80200d89474216b6aa
+#    Time: 135 ns  Scope: tb_aes File: tb_aes.sv Line: 144
+# ** Note: $finish    : tb_aes.sv(145)
+#    Time: 135 ns  Iteration: 1  Instance: /tb_aes
+# End time: 17:46:40 on Jun 26,2025, Elapsed time: 0:00:01
+# Errors: 2, Warnings: 0

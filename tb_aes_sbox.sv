@@ -1,15 +1,13 @@
-`timescale 1ns/1ps
+module tb_aes_sbox;
 
-module tb_aes_sbox();
-    logic [7:0] data_in;
-    logic [7:0] data_out;
+    logic [7:0] data_i;
+    logic [7:0] data_o;
+    
+    logic clk = 1'b0;
+    parameter time CLK_PERIOD = 10ns;
+    
     logic [7:0] sbox_expected;
-    
-    logic clk = 0;
-    parameter CLK_PERIOD = 10;
-    
-    // S-box lookup table
-    logic [7:0] sbox_lut [0:255] = '{
+    logic [7:0] sbox [0:255] = '{
         8'h63, 8'h7c, 8'h77, 8'h7b, 8'hf2, 8'h6b, 8'h6f, 8'hc5, 8'h30, 8'h01, 8'h67, 8'h2b, 8'hfe, 8'hd7, 8'hab, 8'h76,
         8'hca, 8'h82, 8'hc9, 8'h7d, 8'hfa, 8'h59, 8'h47, 8'hf0, 8'had, 8'hd4, 8'ha2, 8'haf, 8'h9c, 8'ha4, 8'h72, 8'hc0,
         8'hb7, 8'hfd, 8'h93, 8'h26, 8'h36, 8'h3f, 8'hf7, 8'hcc, 8'h34, 8'ha5, 8'he5, 8'hf1, 8'h71, 8'hd8, 8'h31, 8'h15,
@@ -27,66 +25,34 @@ module tb_aes_sbox();
         8'he1, 8'hf8, 8'h98, 8'h11, 8'h69, 8'hd9, 8'h8e, 8'h94, 8'h9b, 8'h1e, 8'h87, 8'he9, 8'hce, 8'h55, 8'h28, 8'hdf,
         8'h8c, 8'ha1, 8'h89, 8'h0d, 8'hbf, 8'he6, 8'h42, 8'h68, 8'h41, 8'h99, 8'h2d, 8'h0f, 8'hb0, 8'h54, 8'hbb, 8'h16
     };
-    
-    // Instantiate DUT
-    aes_sbox dut (
-        .data_in(data_in),
-        .data_out(data_out)
+
+    aes_sbox uut (
+        .data_in(data_i),
+        .data_out(data_o)
     );
-    
+
     always #(CLK_PERIOD/2) clk = ~clk;
 
-    int pass_count = 0;
-    int fail_count = 0;
-    int i;
-    
     initial begin
-        $display("======================================");
-        $display("AES S-box Test Starting");
-        $display("======================================");
-        $display("Input\t\tExpected\tActual\t\tResult");
-        $display("-----\t\t--------\t------\t\t------");
-
-        #10;
-
-        for (i = 0; i < 256; i++) begin
-            data_in = i[7:0];
-            sbox_expected = sbox_lut[i];
+        #10ns;
+        
+        for (int i = 0; i < 256; i++) begin
+            data_i = i[7:0];
             
-            #1;
+            sbox_expected = sbox[i];
             
-            // Check result
-            if (data_out == sbox_expected) begin
-                pass_count++;
-                $display("0x%02X\t\t0x%02X\t\t0x%02X\t\tPASS", i, sbox_expected, data_out);
+            #(CLK_PERIOD);
+            
+            if (data_o !== sbox_expected) begin
+                $error("Output doesn't match expected at input %0d: got %02h, expected %02h", 
+                       i, data_o, sbox_expected);
             end else begin
-                fail_count++;
-                $display("0x%02X\t\t0x%02X\t\t0x%02X\t\tFAIL", i, sbox_expected, data_out);
+                $display("Test passed for input %02h: output %02h", i, data_o);
             end
-            
-            @(posedge clk);
         end
         
-        // Report
-        $display("======================================");
-        $display("Test completed");
-        $display("Total tests: %0d", pass_count + fail_count);
-        $display("PASS: %0d", pass_count);
-        $display("FAIL: %0d", fail_count);
-        
-        if (fail_count == 0) begin
-            $display("ALL TESTS PASSED!");
-        end else begin
-            $display("SOME TESTS FAILED!");
-        end
-        $display("======================================");
-        
+        $display("AES S-box test completed");
         $finish;
-    end
-    
-    initial begin
-        $dumpfile("waveforms/aes_sbox.vcd");
-        $dumpvars(0, tb_aes_sbox);
     end
 
 endmodule
