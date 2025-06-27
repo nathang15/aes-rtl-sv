@@ -142,7 +142,7 @@ always_ff @(posedge clk) begin : key_dff
     end
 end
 
-// Output
+// Encrypted final val
 assign res_valid_out = finished_v;
 assign res_enc_out = data_q;
 
