@@ -79,7 +79,7 @@ function [7:0] rcon_prev;
             8'h1b: rcon_prev = 8'h80;
             8'h36: rcon_prev = 8'h1b;
             8'h00: rcon_prev = 8'h36;
-            8'h01: rcon_prev = 8'h00;  // Special case for going before round 1
+            8'h01: rcon_prev = 8'h00;
             default: rcon_prev = 8'h00;
         endcase
     end

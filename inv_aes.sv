@@ -163,7 +163,7 @@ assign round_10_key = temp_keys[10];
 
 // Key management
 assign key_current = data_valid_in ? round_10_key : key_q;
-assign key_rcon_current = data_valid_in ? 8'h36 : key_rcon_q;
+assign key_rcon_current = data_valid_in ? 8'h00 : key_rcon_q;
 
 // Inverse Key scheduler
 inv_aes_key_scheduling iks(
