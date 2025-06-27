@@ -31,21 +31,21 @@ chmod +x run_tests.sh
 
 ##### Sbox Test
 ```
-vsim -c -do "vlib work; vlog -sv *.sv; vsim work.tb_aes_sbox; run -all; quit"
+rm work -Recurse; vsim -c -do "vlib work; vlog -sv *.sv; vsim work.tb_aes_sbox; run -all; quit"
 ```
 ##### MixColumns test
 ```
-vsim -c -do "vlib work; vlog -sv *.sv; vsim work.tb_aes_mixw; run -all; quit"
+rm work -Recurse; vsim -c -do "vlib work; vlog -sv *.sv; vsim work.tb_aes_mixw; run -all; quit"
 ```
 
 ##### Key scheduling test
 ```
-vsim -c -do "vlib work; vlog -sv *.sv; vsim work.tb_aes_key_scheduling; run -all; quit"
+rm work -Recurse; vsim -c -do "vlib work; vlog -sv *.sv; vsim work.tb_aes_key_scheduling; run -all; quit"
 ```
 
 ##### Full AES test
 ```
-vsim -c -do "vlib work; vlog -sv *.sv; vsim work.tb_aes; run -all; quit"
+rm work -Recurse; vsim -c -do "vlib work; vlog -sv *.sv; vsim work.tb_aes; run -all; quit"
 ```
 ## Architecture Details
 
