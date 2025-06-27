@@ -95,9 +95,9 @@ module tb_aes;
         logic [127:0] tb_res_enc_out_line_vec;
         
         // Open files containing test vectors
-        tb_data_in_file = $fopen("test_vec/aes_enc_data_i_hex.txt", "r");
-        tb_key_in_file = $fopen("test_vec/aes_enc_key_i_hex.txt", "r");
-        tb_res_enc_out_file = $fopen("test_vec/aes_enc_res_o_hex.txt", "r");
+        tb_data_in_file = $fopen("test_vec/enc_in.txt", "r");
+        tb_key_in_file = $fopen("test_vec/enc_key.txt", "r");
+        tb_res_enc_out_file = $fopen("test_vec/enc_expected_out.txt", "r");
         
         if (tb_data_in_file == 0 || tb_key_in_file == 0 || tb_res_enc_out_file == 0) begin
             $error("Failed to open test vector files");
