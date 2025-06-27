@@ -1,71 +1,77 @@
 `timescale 1ns / 1ps
+
 module aes_key_scheduling(
-    input  logic [127:0] key_in,        // 128-bit input key
-    input  logic [7:0]   key_rcon_in,   // Round constant input
-    output logic [127:0] key_next_out,  // 128-bit output key
-    output logic [7:0]   key_rcon_out   // Round constant output
+    input logic [127:0] key_in,
+    input logic [7:0] key_rcon_in,
+    output logic [127:0] key_next_out,
+    output logic [7:0] key_rcon_out
 );
 
-    genvar i, j;
+// Internal signals
+logic [31:0] w0, w1, w2, w3;  // Current key words
+logic [31:0] w4, w5, w6, w7;  // Next key words
+logic [31:0] temp;
+logic [31:0] rcon_word;
 
-    // Internal signals
-    logic [31:0] key_words[4];      // Input key split into words
-    logic [31:0] key_words_next[4]; // Output key words
-    logic [31:0] w3_rotated;        // After rotation
-    logic [31:0] w3_substituted;    // After S-box
-    logic [31:0] w3_transformed;    // Final transformed word
-    
-    // Rcon calculation signals
-    logic        rcon_overflow;
-    logic [7:0]  rcon_next;
-    logic [7:0]  rcon_final;
+// Extract current key into words
+assign w0 = key_in[127:96];  // Most significant word
+assign w1 = key_in[95:64];
+assign w2 = key_in[63:32]; 
+assign w3 = key_in[31:0];    // Least significant word
 
-    // Extract words from input key (column-major order)
-    generate
-        for (i = 0; i < 4; i++) begin : gen_extract_words
-            assign key_words[i] = key_in[i*32 +: 32];
-        end
-    endgenerate
+// Generate Rcon word from input byte
+assign rcon_word = {key_rcon_in, 24'h000000};
 
-    // Transform the LAST word (w3): RotWord -> SubWord -> XOR with Rcon
-    
-    // RotWord
-    assign w3_rotated[31:24] = key_words[3][7:0];    // Move LSB to MSB
-    assign w3_rotated[23:16] = key_words[3][31:24];  // Move MSB to second position
-    assign w3_rotated[15:8]  = key_words[3][23:16];  // Move second to third
-    assign w3_rotated[7:0]   = key_words[3][15:8];   // Move third to LSB
+// Key expansion
+// Apply RotWord, SubWord, and XOR with Rcon
+logic [31:0] temp_rotated;
+logic [31:0] temp_subbed;
 
-    // SubWord: apply S-box to each byte in parallel
-    generate
-        for (j = 0; j < 4; j++) begin : gen_sbox_transform
-            aes_sbox u_sbox (
-                .data_in(w3_rotated[j*8 +: 8]),
-                .data_out(w3_substituted[j*8 +: 8])
-            );
-        end
-    endgenerate
-    
-    // XOR with round constant on LSB (least significant byte)
-    assign w3_transformed = {w3_substituted[31:8], w3_substituted[7:0] ^ key_rcon_in};
-    
-    // Key expansion
-    assign key_words_next[0] = key_words[0] ^ w3_transformed;
-    assign key_words_next[1] = key_words[1] ^ key_words_next[0];
-    assign key_words_next[2] = key_words[2] ^ key_words_next[1];
-    assign key_words_next[3] = key_words[3] ^ key_words_next[2];
+// RotWord: {a,b,c,d} -> {b,c,d,a}
+assign temp_rotated = {w3[23:16], w3[15:8], w3[7:0], w3[31:24]};
 
-    // Reconstruct output key
-    generate
-        for (i = 0; i < 4; i++) begin : gen_reconstruct_key
-            assign key_next_out[i*32 +: 32] = key_words_next[i];
-        end
-    endgenerate
+// SubWord
+logic [7:0] sbox_out_0, sbox_out_1, sbox_out_2, sbox_out_3;
 
-    // Round constant update
-    assign rcon_overflow = key_rcon_in[7];
-    assign rcon_next = {key_rcon_in[6:0], 1'b0};
+aes_sbox sbox_0 (.data_in(temp_rotated[31:24]), .data_out(sbox_out_0));
+aes_sbox sbox_1 (.data_in(temp_rotated[23:16]), .data_out(sbox_out_1));
+aes_sbox sbox_2 (.data_in(temp_rotated[15:8]),  .data_out(sbox_out_2));
+aes_sbox sbox_3 (.data_in(temp_rotated[7:0]),   .data_out(sbox_out_3));
 
-    assign rcon_final = ({8{rcon_overflow}} & 8'h1b) | ({8{~rcon_overflow}} & rcon_next);
-    assign key_rcon_out = rcon_final;
+assign temp_subbed = {sbox_out_0, sbox_out_1, sbox_out_2, sbox_out_3};
+
+assign temp = temp_subbed ^ rcon_word;
+
+// Generate new key words
+assign w4 = w0 ^ temp;
+assign w5 = w1 ^ w4;
+assign w6 = w2 ^ w5;
+assign w7 = w3 ^ w6;
+
+// Output next key
+assign key_next_out = {w4, w5, w6, w7};
+
+// Generate next Rcon value
+assign key_rcon_out = rcon_next(key_rcon_in);
+
+// Rcon progression function
+function [7:0] rcon_next;
+    input [7:0] current_rcon;
+    begin
+        case (current_rcon)
+            8'h01: rcon_next = 8'h02;
+            8'h02: rcon_next = 8'h04;
+            8'h04: rcon_next = 8'h08;
+            8'h08: rcon_next = 8'h10;
+            8'h10: rcon_next = 8'h20;
+            8'h20: rcon_next = 8'h40;
+            8'h40: rcon_next = 8'h80;
+            8'h80: rcon_next = 8'h1b;
+            8'h1b: rcon_next = 8'h36;
+            8'h36: rcon_next = 8'h00;
+            default: rcon_next = 8'h00;
+        endcase
+    end
+endfunction
 
 endmodule
