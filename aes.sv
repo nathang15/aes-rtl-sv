@@ -67,7 +67,7 @@ always_ff @(posedge clk) begin : fsm_dff
         fsm_q <= fsm_next;
 end 
 
-// Data Register with Extensive Debugging
+// Data Register
 always_ff @(posedge clk) begin : data_dff
     data_q <= data_next;
 end
