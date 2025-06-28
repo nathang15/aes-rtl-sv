@@ -53,9 +53,33 @@ if run_test "AES Key Scheduling Test" "tb_aes_key_scheduling"; then
     passed_tests=$((passed_tests + 1))
 fi
 
-# Test 4: Full AES Encryption
+# Test 4: AES Encryption
 total_tests=$((total_tests + 1))
-if run_test "AES Full Encryption Test" "tb_aes"; then
+if run_test "AES Encryption Test" "tb_aes"; then
+    passed_tests=$((passed_tests + 1))
+fi
+
+# Test 5: Inverse Sbox test
+total_tests=$((total_tests + 1))
+if run_test "AES Inverse Sbox Test" "tb_inv_aes_sbox"; then
+    passed_tests=$((passed_tests + 1))
+fi
+
+# Test 6: Inverse Key Scheduling
+total_tests=$((total_tests + 1))
+if run_test "AES Inverse Key Scheduling" "tb_inv_aes_key_scheduling"; then
+    passed_tests=$((passed_tests + 1))
+fi
+
+# Test 7: Inverse Mix Columns
+total_tests=$((total_tests + 1))
+if run_test "AES Inverse Mix Columns Test" "tb_inv_aes_mixw"; then
+    passed_tests=$((passed_tests + 1))
+fi
+
+# Test 8: AES Decryption Test
+total_tests=$((total_tests + 1))
+if run_test "AES Decryption Test" "tb_inv_aes"; then
     passed_tests=$((passed_tests + 1))
 fi
 

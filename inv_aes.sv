@@ -185,44 +185,4 @@ end
 assign res_valid_out = finished_v;
 assign res_dec_out = data_q;
 
-function string format_hex_line(input [127:0] value);
-    return $sformatf("%08h%08h%08h%08h", 
-                     value[127:96], value[95:64], value[63:32], value[31:0]);
-endfunction
-
-always_ff @(posedge clk) begin : trace_block
-    if (resetn && fsm_en) begin      
-        if (fsm_q >= 4'h1 && fsm_q <= 4'hA) begin
-            $display("* **Round %0d**", 11 - fsm_q);
-            $display("* input to Round %0d", 11 - fsm_q);
-            $display("* %s", format_hex_line(data_q));
-            
-            $display("* after permutation:");
-            $display("* %s", format_hex_line(inv_shift_row));
-            
-            $display("* after S-Box:");
-            $display("* %s", format_hex_line(inv_sub_bytes));
-            
-            $display("* used subkey:");
-            $display("* %s", format_hex_line(key_current));
-            
-            $display("* after mix with key:");
-            $display("* %s", format_hex_line(round_key_result));
-
-            if (!last_iter_v) begin
-                $display("* after mult:");
-                $display("* %s", format_hex_line(inv_mix_columns));
-            end
-            $display("");
-        end
-
-        if (finished_v) begin
-            $display("* **Decoded**");
-            $display("* %s", format_hex_line(data_q));
-            $display("* **AES INVERSE DECRYPTION COMPLETE**");
-            $display("");
-        end
-    end
-end
-
 endmodule

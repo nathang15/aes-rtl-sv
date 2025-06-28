@@ -1,33 +1,25 @@
 `timescale 1ns / 1ps
 
 module tb_aes;
-
     // Inputs
     logic data_valid_in = 1'b0;
     logic [127:0] data_in = 128'h0;
-    logic [127:0] key_in = 128'h5468617473206D79204B756E67204675;
+    logic [127:0] key_in = 128'h0;
 
     // Outputs
     logic res_valid_out;
     logic [127:0] res_enc_out;
-    
-    // Clock and reset
+
     logic clk = 1'b0;
     logic resetn = 1'b0;
-
-    // Debug and testbench signals
-    logic tb_res_enc_out_ored;
-    logic tb_data_in_ored;
-    logic tb_key_in_ored;
     
-    // File handles for test vectors
     int tb_data_in_file;
     int tb_key_in_file;
     int tb_res_enc_out_file;
 
     parameter time CLK_PERIOD = 10ns;
 
-    // Instantiate the Unit Under Test (UUT)
+    // Instantiate
     aes uut (
         .clk(clk),
         .resetn(resetn),
@@ -38,20 +30,15 @@ module tb_aes;
         .res_enc_out(res_enc_out)
     );
 
-    // Clock generation
+    // Clock gen
     always #(CLK_PERIOD/2) clk = ~clk;
 
-    // Testbench specific OR reduction
     assign tb_res_enc_out_ored = |res_enc_out;
     assign tb_data_in_ored = |data_in;
     assign tb_key_in_ored = |key_in;
 
-    // Assert process for design verification
     always @(posedge clk) begin
-        #1; // Small delay to avoid race conditions
-        
-        // TestBench verification
-        
+        #1;
         // Reset X check
         assert (resetn !== 1'bx) else begin
             $error("resetn is X");
@@ -69,9 +56,7 @@ module tb_aes;
             $error("input data and key contain X on valid");
             $finish;
         end
-    
-        // Design verification
-    
+
         // Output valid signal should never be X, except during reset
         assert (!(res_valid_out === 1'bx && resetn === 1'b1)) else begin
             $error("output valid is X");
@@ -85,7 +70,7 @@ module tb_aes;
         end
     end
 
-    // Test vector checking: check if output matches OpenSSL AES128
+    // Test vector check
     initial begin
         string tb_data_in_line;
         string tb_key_in_line;
@@ -151,7 +136,6 @@ module tb_aes;
             @(posedge clk);
         end
         
-        // Close files
         $fclose(tb_data_in_file);
         $fclose(tb_key_in_file);
         $fclose(tb_res_enc_out_file);
