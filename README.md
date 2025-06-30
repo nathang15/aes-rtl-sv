@@ -1,6 +1,6 @@
 # AES RTL Implementation
 A complete SystemVerilog implementation of the Advanced Encryption Standard (AES) (128 for now) algorithm for FPGA and ASIC development.
-
+![alt text](image.png)
 ## Overview
 This project provides a fully functional, synthesizable AES-128 encryption/decryption written in SystemVerilog. The implementation follows the [FIPS-197 standard](https://csrc.nist.gov/files/pubs/fips/197/final/docs/fips-197.pdf).
 
