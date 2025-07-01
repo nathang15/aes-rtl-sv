@@ -277,10 +277,10 @@ The design optimizes for balanced area/performance:
 - Routing: Clean due to regular structure
 
 ## Resources
-[NIST FIPS 197 AES and its test vectors](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.197-upd1.pdf)
-[AES Animation](https://legacy.cryptool.org/en/cto/aes-animation)
-[Galois Field Arithmetic](https://en.wikipedia.org/wiki/Finite_field_arithmetic)
-[Rijndael Block Cipher: AES](https://csrc.nist.gov/csrc/media/projects/cryptographic-standards-and-guidelines/documents/aes-development/rijndael-ammended.pdf)
-[Boyar & Peralta (2009): "A new combinational logic minimization technique with applications to cryptology"](https://eprint.iacr.org/2011/332.pdf)
+- [NIST FIPS 197 AES and its test vectors](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.197-upd1.pdf)
+- [AES Animation](https://legacy.cryptool.org/en/cto/aes-animation)
+- [Galois Field Arithmetic](https://en.wikipedia.org/wiki/Finite_field_arithmetic)
+- [Rijndael Block Cipher: AES](https://csrc.nist.gov/csrc/media/projects/cryptographic-standards-and-guidelines/documents/aes-development/rijndael-ammended.pdf)
+- [Boyar & Peralta (2009): "A new combinational logic minimization technique with applications to cryptology"](https://eprint.iacr.org/2011/332.pdf)
 
 ⚠️ Disclaimer: This implementation is for educational and research purposes. Production cryptographic systems require additional security analysis and validation.
